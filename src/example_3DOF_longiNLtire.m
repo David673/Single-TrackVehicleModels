@@ -1,8 +1,8 @@
 clear variables;
 close all;
 %% initializing for parameters
-% a（m）：质心到前轴的距离
-% b（m）：质心到后轴的距离
+% a(m):The distance from the center of mass to the front axle
+% b(m):The distance from the center of mass to the rear axle
 
 a = 1.615;
 b = 2.910-a;
@@ -10,21 +10,21 @@ Izz = 1536.7;
 m = 1270;
 g = 9.8;
 
-%% 调参数 
-% Kty1（N/rad）：左前轮侧偏刚度
+%% Adjust the parameters 
+% Kty1(N/rad):Side-slip stiffness of the left front wheel
 % Kty1 =(-610*180/pi*2)*b/(a+b);
 % Kty2 =(-610*180/pi*2)*a/(a+b);
 Kty1 =(-510*180/pi*2);
 Kty2 =(-510*180/pi*2);
 
-%% basic simulation parameters 仿真时间和步长
+%% basic simulation parameters
 TimeS = 15;
 step = 0.01;
 Time = 0:step:TimeS;
 nstep = length(Time);
 
 %% initializing for variables
-% δ （rad）：前轮转角
+% delta(rad):steering angle of the front wheels
 
 % delta = 15*pi/180 * sin(2*pi/10 * Time);%%%%sine input
 delta = 10 * pi/180+zeros(nstep,1);%%%%step input
@@ -58,13 +58,13 @@ dz = zeros(nstep,1);
 %% integration 
 for i=1:(nstep-1)
     yaw(i+1)= yaw(i)+step*r(i);
-    %1大地-车身坐标变换矩阵
+    %Transformation matrix between ground and vehicle body
     Cga = CgaCal(0,0,yaw(i));
     temp1 = Cga*[u(i);v(i);0];
     dx(i) = temp1(1);
     dy(i) = temp1(2);
     dz(i) = temp1(3);
-    %------------算法需改进------------------------------------
+    %
     x(i+1) = x(i) + step * dx(i);
     y(i+1) = y(i) + step * dy(i);
     z(i+1) = z(i) + step * dz(i);
@@ -74,7 +74,8 @@ for i=1:(nstep-1)
     alpha1(i) = beta + a*r(i)/u(i) - delta(i);
     alpha2(i) = beta - b*r(i)/u(i);
     
-    if(abs(u(i))<2.5 && u(i)~=0)   %低速下限制侧偏角的值以提高稳定性
+    %Limit the alpha angles at low speeds to improve stability
+    if(abs(u(i))<2.5 && u(i)~=0)   
         alpha1(i) = alpha1(i) * ((1-0.01)*abs(u(i))/2.5 + 0.01);
         alpha2(i) = alpha2(i) * ((1-0.01)*abs(u(i))/2.5 + 0.01);
     end
@@ -117,7 +118,7 @@ subplot(4,4,12);plot(Time,fx2);title('fxR（N）');
 subplot(4,4,13);plot(Time,x);title('x（m）');
 subplot(4,4,14);plot(Time,y);title('y（m）');
 subplot(4,4,15);plot(Time,z);title('z（m）');
-subplot(4,4,16);plot(x,y);title('轨迹（m）');
+subplot(3,4,12);plot(x,y);title('Trajectory(m)');
 
 fy1sin = zeros(1,nstep);
 for i=1:nstep
