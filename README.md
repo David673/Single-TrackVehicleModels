@@ -1,4 +1,4 @@
-# SinglTrackVehicleModels
+# Single-Track Vehicle Models
 A series of vehicle dynamics model, commonly used in model-based control.
 
 All of the models are single track models.
